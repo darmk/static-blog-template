@@ -14,12 +14,6 @@ const updated = latest
   : '——';
 
 const tags = ['Web', 'AI', 'Three.js', 'Engineering'];
-
-const stats = [
-  { label: '文章', value: posts.length },
-  { label: '项目', value: projects.length },
-  { label: '笔记', value: notes.length },
-];
 ---
 
 <section
@@ -29,7 +23,7 @@ const stats = [
   data-hero-root
 >
   <!-- CSS-only engineering grid + mouse spotlight ------------------------ -->
-  <div class="absolute inset-0 -z-10" aria-hidden="true">
+  <div class="hero-bg absolute inset-0 -z-10" aria-hidden="true">
     <div class="grid-bg"></div>
     <div
       class="hero-spotlight absolute inset-0"
@@ -46,14 +40,13 @@ const stats = [
       style="background: linear-gradient(to top, var(--background), transparent);"
     >
     </div>
+    <div class="hero-vignette absolute inset-0"></div>
   </div>
 
-  <div class="container-page w-full">
-    <div
-      class="grid items-center gap-14 lg:grid-cols-[1.35fr_1fr] lg:gap-16"
-    >
+  <div class="container-page relative w-full">
+    <div class="mx-auto grid max-w-[78rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,25rem)] lg:gap-14">
       <!-- left: title ---------------------------------------------------- -->
-      <div class="max-w-[46rem]">
+      <div class="relative max-w-[46rem]">
         <p
           class="mono mb-6 flex items-center gap-2.5 text-[12px] tracking-[0.16em] text-[var(--faint)] uppercase"
           data-hero="eyebrow"
@@ -141,76 +134,125 @@ const stats = [
         </div>
       </div>
 
-      <!-- right: status panel -------------------------------------------- -->
-      <div class="lg:justify-self-end" data-hero="status">
-        <div
-          class="spotlight group relative w-full overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6 lg:w-[340px]"
-          data-spotlight
-        >
-          <!-- top rule -->
-          <div
-            class="absolute inset-x-0 top-0 h-px"
-            style="background: linear-gradient(to right, transparent, var(--primary-glow), transparent);"
-          >
-          </div>
+      <!-- right: stats card ---------------------------------------------- -->
+      <aside
+        class="hero-stats hidden w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]/80 p-7 shadow-[0_18px_60px_-16px_rgba(0,0,0,0.35)] backdrop-blur-md lg:block"
+        aria-label="站点状态"
+      >
+        <div class="flex items-center justify-between text-[12.5px]">
+          <span class="text-[var(--faint)]">当前状态</span>
+          <span class="mono flex items-center gap-1.5 font-medium text-[var(--cyan)]">
+            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--cyan)]"></span>
+            ONLINE
+          </span>
+        </div>
 
-          <div class="flex items-center justify-between">
-            <span class="eyebrow">当前状态</span>
-            <span
-              class="mono flex items-center gap-1.5 text-[11px] text-[var(--cyan)]"
-            >
-              <span
-                class="inline-block h-1.5 w-1.5 rounded-full bg-[var(--cyan)] pulse-dot"
-              ></span>
-              ONLINE
+        <div class="mt-7 space-y-5">
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-4">
+            <span class="text-[16px] text-[var(--foreground)]">文章</span>
+            <span class="mono text-[34px] font-semibold leading-none text-[var(--foreground-strong)]">
+              {String(posts.length).padStart(2, '0')}
             </span>
           </div>
-
-          <!-- stats -->
-          <dl class="mt-6 space-y-px">
-            {
-              stats.map((item) => (
-                <div class="group/stat flex items-baseline justify-between border-b border-[var(--border-faint)] py-3 last:border-0">
-                  <dt class="text-[13.5px] text-[var(--muted)]">
-                    {item.label}
-                  </dt>
-                  <dd class="mono text-[20px] font-medium tabular-nums text-[var(--foreground-strong)] transition-transform duration-300 ease-[var(--ease-out)] group-hover/stat:translate-x-[-3px]">
-                    {String(item.value).padStart(2, '0')}
-                  </dd>
-                </div>
-              ))
-            }
-          </dl>
-
-          <div
-            class="mt-6 flex items-center justify-between border-t border-[var(--border-faint)] pt-5"
-          >
-            <span class="mono text-[11px] text-[var(--faint)]">最近更新</span>
-            <span class="mono text-[13px] text-[var(--foreground)]"
-              >{updated}</span
-            >
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-4">
+            <span class="text-[16px] text-[var(--foreground)]">项目</span>
+            <span class="mono text-[34px] font-semibold leading-none text-[var(--foreground-strong)]">
+              {String(projects.length).padStart(2, '0')}
+            </span>
           </div>
-
-          <!-- decorative terminal line -->
-          <div
-            class="mono mt-5 flex items-center gap-1.5 text-[11px] text-[var(--faint)]"
-          >
-            <span class="text-[var(--primary)]">$</span>
-            <span>whoami</span>
-            <span class="cursor-blink text-[var(--foreground)]">▍</span>
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-4">
+            <span class="text-[16px] text-[var(--foreground)]">笔记</span>
+            <span class="mono text-[34px] font-semibold leading-none text-[var(--foreground-strong)]">
+              {String(notes.length).padStart(2, '0')}
+            </span>
           </div>
         </div>
 
-        <p
-          class="mono mt-5 hidden text-center text-[11px] tracking-[0.18em] text-[var(--faint)] uppercase lg:block"
-        >
-          Code · Build · Share
-        </p>
-      </div>
+        <div class="mt-6 flex items-center justify-between text-[12.5px]">
+          <span class="text-[var(--faint)]">最近更新</span>
+          <span class="mono text-[var(--muted)]">{updated}</span>
+        </div>
+
+        <div class="mt-5 flex items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--background)]/60 px-3.5 py-3">
+          <span class="mono mr-1 text-[var(--primary)]">$</span>
+          <span class="mono text-[13.5px] text-[var(--foreground-strong)]">whoami</span>
+          <span class="hero-cursor ml-0.5 inline-block h-4 w-[2px] bg-[var(--foreground-strong)]"></span>
+        </div>
+
+        <div class="mono mt-6 flex justify-center gap-2 text-[10.5px] tracking-[0.14em] text-[var(--faint)]">
+          <span>CODE</span>
+          <span>·</span>
+          <span>BUILD</span>
+          <span>·</span>
+          <span>SHARE</span>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
 
 <script>
   import '~/lib/hero-animation';
+  import { initHeroParticles } from '~/lib/hero-particles';
+
+  type WindowWithHero = Window & {
+    __heroParticlesKill?: () => void;
+  };
+  const w = window as WindowWithHero;
+
+  const bootstrap = () => {
+    // kill previous run if View Transitions brought us back to a page that
+    // already has particles (e.g. navigating back from another route).
+    if (typeof w.__heroParticlesKill === 'function') {
+      w.__heroParticlesKill();
+      w.__heroParticlesKill = undefined;
+    }
+    // bail if Hero isn't on this page (PostClient-only routes etc.)
+    if (!document.getElementById('hero')) return;
+    w.__heroParticlesKill = initHeroParticles();
+  };
+
+  document.addEventListener('astro:page-swap', () => {
+    if (typeof w.__heroParticlesKill === 'function') {
+      w.__heroParticlesKill();
+      w.__heroParticlesKill = undefined;
+    }
+  });
+  document.addEventListener('astro:after-swap', bootstrap);
+  bootstrap();
 </script>
+
+<style>
+  /* Vignette darkens the corners slightly so the particle field reads as
+     a "screen" the headline floats over. */
+  .hero-vignette {
+    background:
+      radial-gradient(
+        ellipse at center,
+        transparent 55%,
+        color-mix(in srgb, var(--background) 70%, transparent) 100%
+      );
+    pointer-events: none;
+  }
+
+  /* Canvas injected by hero-particles.ts sits at z 0 of the section
+     (default for prepended child), content above. The H1 sits over the
+     canvas so headline stays legible regardless of particle phase. */
+  :global(#hero > canvas[data-hero-particles]) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-cursor {
+    animation: hero-cursor-blink 1.1s step-end infinite;
+  }
+
+  @keyframes hero-cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
