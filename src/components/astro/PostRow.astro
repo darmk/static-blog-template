@@ -1,0 +1,97 @@
+---
+import type { Post } from '~/lib/content';
+import { categoryLabel, formatDate, postUrl } from '~/lib/content';
+
+interface Props {
+  post: Post;
+  /** 行号，01 起 */
+  index: number;
+  /** 是否显示描述（blog 列表页用） */
+  showDescription?: boolean;
+  /** 是否显示阅读时长 */
+  showReadingTime?: boolean;
+  readingMinutes?: number;
+  /** 桌面悬停时预览的标签 */
+  showTags?: boolean;
+}
+
+const {
+  post,
+  index,
+  showDescription = false,
+  showReadingTime = false,
+  readingMinutes = 0,
+  showTags = true,
+} = Astro.props;
+---
+
+<a
+  href={postUrl(post)}
+  class="post-row group relative grid grid-cols-[auto_1fr_auto] items-baseline gap-x-4 border-b border-[var(--border-faint)] py-5 transition-[opacity,transform] duration-300 ease-[var(--ease-out)] hover:translate-x-1 sm:grid-cols-[3.2rem_1fr_auto_auto] sm:gap-x-6"
+  data-reveal
+  data-category={post.data.category}
+  data-year={post.data.publishedAt.getFullYear()}
+>
+  <span class="mono text-[12px] tabular-nums text-[var(--faint)] transition-colors duration-300 group-hover:text-[var(--primary)]">
+    {String(index + 1).padStart(2, '0')}
+  </span>
+
+  <span class="min-w-0">
+    <span
+      class:list={[
+        'block truncate text-[15.5px] font-medium leading-snug transition-colors duration-200',
+        'text-[var(--foreground)] group-hover:text-[var(--foreground-strong)]',
+        post.data.pinned && 'inline-flex items-center gap-2',
+      ]}
+    >
+      {post.data.pinned && (
+        <span
+          class="mono shrink-0 rounded-[var(--radius-xs)] border border-[var(--border)] px-1.5 py-0.5 text-[10px] font-normal tracking-wide text-[var(--primary)]"
+        >
+          置顶
+        </span>
+      )}
+      <span class="truncate">{post.data.title}</span>
+    </span>
+
+    {showDescription && (
+      <span class="mt-1.5 line-clamp-2 block text-[13px] leading-relaxed text-[var(--muted)]">
+        {post.data.description}
+      </span>
+    )}
+
+    <span class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--faint)]">
+      <span class="mono">{categoryLabel(post.data.category)}</span>
+      {showReadingTime && readingMinutes > 0 && (
+        <span class="mono">约 {readingMinutes} 分钟</span>
+      )}
+      {showTags &&
+        post.data.tags.slice(0, 3).map((tag) => (
+          <span class="mono opacity-70">#{tag}</span>
+        ))}
+    </span>
+  </span>
+
+  <span class="mono hidden self-center text-[12px] text-[var(--faint)] tabular-nums sm:block">
+    {formatDate(post.data.publishedAt)}
+  </span>
+
+  <span
+    class="self-center text-[var(--faint)] transition-[color,transform] duration-300 ease-[var(--ease-out)] group-hover:translate-x-1 group-hover:text-[var(--primary)]"
+    aria-hidden="true"
+  >
+    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6"></path>
+    </svg>
+  </span>
+</a>
+
+<style>
+  /* 编辑感列表：悬停某行时其余行退为次级 */
+  .post-list:hover .post-row {
+    opacity: 0.55;
+  }
+  .post-list .post-row:hover {
+    opacity: 1;
+  }
+</style>

@@ -1,0 +1,486 @@
+---
+/**
+ * Programmatic visuals — every graphic on the site is generated here.
+ * No stock photography, no placeholder images, no icon-library dependency.
+ *
+ * The accent colour is inherited from a CSS variable so the same drawing
+ * works inside Bento cards, project covers and the article page.
+ */
+interface Props {
+  variant: 'nodes' | 'wireframe' | 'browser' | 'architecture' | 'pipeline' | 'terminal';
+  class?: string;
+  /** 是否在 hover 时播放微动 */
+  animated?: boolean;
+}
+
+const { variant, class: className = '', animated = true } = Astro.props;
+---
+
+<div
+  class:list={['visual', `visual-${variant}`, animated && 'visual-animated', className]}
+  aria-hidden="true"
+>
+  {
+    variant === 'nodes' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <g class="v-edges">
+          <path d="M200 150 L95 92" />
+          <path d="M200 150 L152 62" />
+          <path d="M200 150 L305 78" />
+          <path d="M200 150 M338 158 L200 150" />
+          <path d="M200 150 L286 232" />
+          <path d="M200 150 L162 244" />
+          <path d="M200 150 L78 196" />
+          <path d="M95 92 L152 62" />
+          <path d="M305 78 L338 158" />
+          <path d="M286 232 L338 158" />
+          <path d="M78 196 L95 92" />
+          <path d="M162 244 L78 196" />
+        </g>
+
+        <g class="v-flow">
+          <path d="M200 150 L95 92" />
+          <path d="M200 150 L305 78" />
+          <path d="M200 150 L286 232" />
+        </g>
+
+        <g class="v-nodes">
+          <circle cx="200" cy="150" r="11" class="v-core" />
+          <circle cx="95" cy="92" r="6.5" />
+          <circle cx="152" cy="62" r="5" />
+          <circle cx="305" cy="78" r="7" />
+          <circle cx="338" cy="158" r="5.5" />
+          <circle cx="286" cy="232" r="6.5" />
+          <circle cx="162" cy="244" r="5" />
+          <circle cx="78" cy="196" r="6" />
+          <circle cx="248" cy="112" r="4" />
+          <circle cx="266" cy="188" r="4.5" />
+        </g>
+
+        <g class="v-ring">
+          <circle cx="200" cy="150" r="52" />
+          <circle cx="200" cy="150" r="94" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'wireframe' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <g class="v-wire">
+          <circle cx="200" cy="150" r="104" />
+          <ellipse cx="200" cy="150" rx="100" ry="30" />
+          <ellipse cx="200" cy="104" rx="90" ry="27" />
+          <ellipse cx="200" cy="196" rx="90" ry="27" />
+          <ellipse cx="200" cy="70" rx="62" ry="19" />
+          <ellipse cx="200" cy="230" rx="62" ry="19" />
+          <ellipse cx="200" cy="150" rx="32" ry="104" />
+          <ellipse cx="200" cy="150" rx="68" ry="104" />
+          <ellipse cx="200" cy="150" rx="104" ry="104" />
+        </g>
+
+        <g class="v-nodes">
+          <circle cx="200" cy="46" r="4" />
+          <circle cx="200" cy="254" r="4" />
+          <circle cx="96" cy="150" r="4" />
+          <circle cx="304" cy="150" r="4" />
+          <circle cx="126" cy="80" r="3" />
+          <circle cx="274" cy="220" r="3" />
+        </g>
+
+        <g class="v-flow">
+          <ellipse cx="200" cy="150" rx="100" ry="30" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'browser' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <rect x="46" y="42" width="308" height="216" rx="10" class="v-frame" />
+        <path d="M46 76 H354" class="v-frame" />
+
+        <g class="v-dots">
+          <circle cx="64" cy="59" r="4" />
+          <circle cx="78" cy="59" r="4" />
+          <circle cx="92" cy="59" r="4" />
+        </g>
+
+        <rect x="110" y="51" width="228" height="16" rx="8" class="v-bar" />
+        <path d="M124 59 H150" class="v-bar-accent" />
+
+        <g class="v-blocks">
+          <rect x="70" y="98" width="120" height="12" rx="3" class="v-b1" />
+          <rect x="70" y="122" width="196" height="9" rx="3" class="v-b2" />
+          <rect x="70" y="141" width="152" height="9" rx="3" class="v-b2" />
+          <rect x="70" y="170" width="260" height="60" rx="6" class="v-b3" />
+          <rect x="70" y="244" width="86" height="10" rx="3" class="v-b4" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'architecture' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <g class="v-boxes">
+          <rect x="152" y="42" width="96" height="38" rx="7" />
+          <rect x="42" y="128" width="96" height="38" rx="7" />
+          <rect x="152" y="128" width="96" height="38" rx="7" />
+          <rect x="262" y="128" width="96" height="38" rx="7" />
+          <rect x="152" y="214" width="96" height="38" rx="7" />
+        </g>
+
+        <g class="v-edges">
+          <path d="M200 80 V128" />
+          <path d="M200 80 L90 128" />
+          <path d="M200 80 L310 128" />
+          <path d="M90 166 L200 214" />
+          <path d="M310 166 L200 214" />
+          <path d="M200 166 V214" />
+        </g>
+
+        <g class="v-flow">
+          <path d="M200 80 V128" />
+          <path d="M200 166 V214" />
+        </g>
+
+        <g class="v-nodes">
+          <circle cx="200" cy="80" r="4" />
+          <circle cx="200" cy="128" r="4" />
+          <circle cx="200" cy="166" r="4" />
+          <circle cx="200" cy="214" r="4" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'pipeline' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <g class="v-edges">
+          <path d="M62 150 H130" />
+          <path d="M158 150 H226" />
+          <path d="M254 150 H322" />
+        </g>
+
+        <g class="v-flow">
+          <path d="M62 150 H130" />
+          <path d="M158 150 H226" />
+          <path d="M254 150 H322" />
+        </g>
+
+        <g class="v-stages">
+          <rect x="34" y="122" width="56" height="56" rx="10" />
+          <rect x="130" y="122" width="56" height="56" rx="10" />
+          <rect x="226" y="122" width="56" height="56" rx="10" />
+          <rect x="322" y="122" width="56" height="56" rx="10" class="v-stage-active" />
+        </g>
+
+        <g class="v-nodes">
+          <path d="M50 150 l10 10 l14 -20" />
+          <path d="M146 150 l10 10 l14 -20" />
+          <path d="M242 150 l10 10 l14 -20" />
+          <circle cx="356" cy="150" r="8" class="v-core" />
+        </g>
+
+        <g class="v-blocks">
+          <rect x="34" y="204" width="88" height="8" rx="3" class="v-b2" />
+          <rect x="130" y="204" width="60" height="8" rx="3" class="v-b2" />
+          <rect x="226" y="204" width="76" height="8" rx="3" class="v-b2" />
+          <rect x="322" y="204" width="44" height="8" rx="3" class="v-b4" />
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    variant === 'terminal' && (
+      <svg viewBox="0 0 400 300" fill="none" preserveAspectRatio="xMidYMid slice">
+        <g class="v-grid">
+          {Array.from({ length: 11 }).map((_, i) => (
+            <line x1={i * 40} y1="0" x2={i * 40} y2="300" />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line x1="0" y1={i * 40} x2="400" y2={i * 40} />
+          ))}
+        </g>
+
+        <rect x="46" y="52" width="308" height="196" rx="10" class="v-frame" />
+        <path d="M46 84 H354" class="v-frame" />
+
+        <g class="v-dots">
+          <circle cx="64" cy="68" r="4" />
+          <circle cx="78" cy="68" r="4" />
+          <circle cx="92" cy="68" r="4" />
+        </g>
+
+        <g class="v-text">
+          <path d="M72 118 h10 l6 8" class="v-prompt" />
+          <rect x="98" y="112" width="86" height="10" rx="3" class="v-b1" />
+          <rect x="72" y="146" width="132" height="9" rx="3" class="v-b2" />
+          <rect x="72" y="168" width="196" height="9" rx="3" class="v-b2" />
+          <rect x="72" y="190" width="152" height="9" rx="3" class="v-b2" />
+          <path d="M72 216 h10 l6 8" class="v-prompt" />
+          <rect x="98" y="210" width="54" height="10" rx="3" class="v-b4" />
+        </g>
+      </svg>
+    )
+  }
+</div>
+
+<style>
+  .visual {
+    --v-line: var(--border-strong);
+    --v-accent: var(--primary);
+    --v-accent-soft: var(--primary-soft);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .visual svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .v-grid line {
+    stroke: var(--border-faint);
+    stroke-width: 1;
+  }
+
+  .v-edges path {
+    stroke: var(--v-line);
+    stroke-width: 1.2;
+    fill: none;
+  }
+
+  .v-flow path,
+  .v-flow ellipse {
+    stroke: var(--v-accent);
+    stroke-width: 1.4;
+    fill: none;
+    opacity: 0.5;
+    stroke-dasharray: 5 9;
+  }
+
+  .v-nodes circle {
+    fill: var(--v-accent);
+    opacity: 0.75;
+  }
+  .v-nodes .v-core {
+    fill: var(--v-accent);
+    opacity: 1;
+  }
+  .v-nodes path {
+    stroke: var(--v-accent);
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.8;
+  }
+
+  .v-ring circle {
+    stroke: var(--v-accent);
+    stroke-width: 1;
+    fill: none;
+    opacity: 0.16;
+    stroke-dasharray: 3 7;
+  }
+
+  .v-wire circle,
+  .v-wire ellipse {
+    stroke: var(--v-accent);
+    stroke-width: 1.1;
+    fill: none;
+    opacity: 0.4;
+  }
+
+  .v-frame {
+    stroke: var(--v-line);
+    stroke-width: 1.2;
+    fill: none;
+  }
+  .v-bar {
+    stroke: var(--v-line);
+    stroke-width: 1.1;
+    fill: none;
+    opacity: 0.7;
+  }
+  .v-bar-accent {
+    stroke: var(--v-accent);
+    stroke-width: 1.6;
+    opacity: 0.7;
+  }
+
+  .v-dots circle {
+    fill: var(--v-line);
+  }
+
+  .v-blocks rect {
+    fill: var(--v-line);
+    opacity: 0.55;
+  }
+  .v-blocks .v-b3 {
+    fill: var(--v-accent);
+    opacity: 0.09;
+    stroke: var(--v-accent);
+    stroke-width: 1;
+  }
+  .v-blocks .v-b4 {
+    fill: var(--v-accent);
+    opacity: 0.45;
+  }
+
+  .v-boxes rect {
+    fill: var(--surface);
+    stroke: var(--v-line);
+    stroke-width: 1.2;
+  }
+
+  .v-stages rect {
+    fill: var(--surface);
+    stroke: var(--v-line);
+    stroke-width: 1.2;
+  }
+  .v-stages .v-stage-active {
+    stroke: var(--v-accent);
+    fill: var(--v-accent-soft);
+  }
+
+  .v-prompt {
+    stroke: var(--v-accent);
+    stroke-width: 1.8;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .v-text rect {
+    fill: var(--v-line);
+    opacity: 0.6;
+  }
+  .v-text .v-b1 {
+    fill: var(--v-accent);
+    opacity: 0.55;
+  }
+  .v-text .v-b4 {
+    fill: var(--v-accent);
+    opacity: 0.7;
+  }
+
+  /* ---- hover micro-motion ---------------------------------------------- */
+  .visual-animated .v-flow path,
+  .visual-animated .v-flow ellipse {
+    animation: v-dash 22s linear infinite;
+  }
+  .visual-animated .v-ring circle {
+    animation: v-spin 40s linear infinite;
+    transform-origin: 200px 150px;
+  }
+
+  .group:hover .visual-animated .v-nodes circle,
+  .visual-animated:hover .v-nodes circle {
+    opacity: 1;
+  }
+  .group:hover .visual-animated .v-wire circle,
+  .group:hover .visual-animated .v-wire ellipse,
+  .visual-animated:hover .v-wire circle,
+  .visual-animated:hover .v-wire ellipse {
+    opacity: 0.62;
+  }
+  .group:hover .visual-animated .v-edges path,
+  .visual-animated:hover .v-edges path {
+    stroke: var(--v-accent);
+    opacity: 0.55;
+  }
+
+  .visual,
+  .visual * {
+    transition:
+      opacity 420ms var(--ease-out),
+      stroke 420ms var(--ease-out);
+  }
+
+  @keyframes v-dash {
+    to {
+      stroke-dashoffset: -280;
+    }
+  }
+  @keyframes v-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .visual-animated .v-flow path,
+    .visual-animated .v-flow ellipse,
+    .visual-animated .v-ring circle {
+      animation: none;
+    }
+  }
+
+  /* ---- accent variants -------------------------------------------------- */
+  .accent-cyan {
+    --v-accent: var(--cyan);
+    --v-accent-soft: rgba(94, 234, 212, 0.1);
+  }
+  .accent-purple {
+    --v-accent: var(--purple);
+    --v-accent-soft: rgba(167, 139, 250, 0.1);
+  }
+  .accent-neutral {
+    --v-accent: var(--muted);
+    --v-accent-soft: rgba(139, 147, 161, 0.1);
+  }
+</style>

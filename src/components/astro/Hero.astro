@@ -1,0 +1,216 @@
+---
+import { getPosts, getProjects, getNotes, formatDateShort } from '~/lib/content';
+import { siteConfig } from '~/config/site';
+
+const [posts, projects, notes] = await Promise.all([
+  getPosts(),
+  getProjects(),
+  getNotes(),
+]);
+
+const latest = posts[0];
+const updated = latest
+  ? formatDateShort(latest.data.updatedAt ?? latest.data.publishedAt)
+  : '——';
+
+const tags = ['Web', 'AI', 'Three.js', 'Engineering'];
+
+const stats = [
+  { label: '文章', value: posts.length },
+  { label: '项目', value: projects.length },
+  { label: '笔记', value: notes.length },
+];
+---
+
+<section
+  id="hero"
+  class="relative isolate flex min-h-[90vh] items-center overflow-hidden pb-16 pt-[calc(var(--nav-height)+40px)]"
+  data-spotlight-scope
+  data-hero-root
+>
+  <!-- CSS-only engineering grid + mouse spotlight ------------------------ -->
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    <div class="grid-bg"></div>
+    <div
+      class="hero-spotlight absolute inset-0"
+      style="background: radial-gradient(560px circle at var(--mouse-x, 50%) var(--mouse-y, 40%), var(--primary-soft), transparent 68%);"
+    >
+    </div>
+    <div
+      class="absolute inset-x-0 top-0 h-[300px]"
+      style="background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 6%, transparent), transparent);"
+    >
+    </div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-40"
+      style="background: linear-gradient(to top, var(--background), transparent);"
+    >
+    </div>
+  </div>
+
+  <div class="container-page w-full">
+    <div
+      class="grid items-center gap-14 lg:grid-cols-[1.35fr_1fr] lg:gap-16"
+    >
+      <!-- left: title ---------------------------------------------------- -->
+      <div class="max-w-[46rem]">
+        <p
+          class="mono mb-6 flex items-center gap-2.5 text-[12px] tracking-[0.16em] text-[var(--faint)] uppercase"
+          data-hero="eyebrow"
+        >
+          <span
+            class="inline-block h-1.5 w-1.5 rounded-full bg-[var(--primary)] pulse-dot"
+          ></span>
+          你好，我是 {siteConfig.author}
+        </p>
+
+        <h1
+          class="text-balance text-[42px] font-semibold leading-[1.06] tracking-[-0.03em] text-[var(--foreground-strong)] sm:text-[58px] lg:text-[72px] xl:text-[80px]"
+          data-hero="title"
+        >
+          <span class="block overflow-hidden"
+            ><span class="block" data-hero-line>记录技术</span></span
+          >
+          <span class="block overflow-hidden"
+            ><span class="block" data-hero-line>分享实践</span></span
+          >
+          <span class="block overflow-hidden"
+            ><span class="block text-gradient" data-hero-line
+              >探索有趣的东西</span
+            ></span
+          >
+        </h1>
+
+        <p
+          class="mt-7 max-w-[42ch] text-[15.5px] leading-[1.85] text-[var(--muted)] sm:text-[16.5px]"
+          data-hero="desc"
+        >
+          这里是 {siteConfig.author} 的个人空间。记录 Web、AI、工程实践、Three.js
+          与 3D 可视化，以及开发过程中值得留下来的思考。
+        </p>
+
+        <!-- tags --------------------------------------------------------- -->
+        <div class="mt-8 flex flex-wrap items-center gap-2" data-hero="tags">
+          {
+            tags.map((tag) => (
+              <span
+                class="mono rounded-[var(--radius-xs)] border border-[var(--border)] px-2.5 py-1 text-[11.5px] text-[var(--muted)]"
+                data-hero-tag
+              >
+                {tag}
+              </span>
+            ))
+          }
+          <span class="mono ml-1 text-[11px] text-[var(--faint)]"
+            >&lt;/&gt;</span
+          >
+        </div>
+
+        <!-- CTA ---------------------------------------------------------- -->
+        <div class="mt-10 flex flex-wrap items-center gap-3" data-hero="cta">
+          <a href="/blog" class="btn btn-primary" data-magnetic>
+            浏览文章
+            <svg
+              class="btn-arrow h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg>
+          </a>
+          <a href="/projects" class="btn btn-ghost" data-magnetic>
+            查看项目
+            <svg
+              class="btn-arrow h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- right: status panel -------------------------------------------- -->
+      <div class="lg:justify-self-end" data-hero="status">
+        <div
+          class="spotlight group relative w-full overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6 lg:w-[340px]"
+          data-spotlight
+        >
+          <!-- top rule -->
+          <div
+            class="absolute inset-x-0 top-0 h-px"
+            style="background: linear-gradient(to right, transparent, var(--primary-glow), transparent);"
+          >
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="eyebrow">当前状态</span>
+            <span
+              class="mono flex items-center gap-1.5 text-[11px] text-[var(--cyan)]"
+            >
+              <span
+                class="inline-block h-1.5 w-1.5 rounded-full bg-[var(--cyan)] pulse-dot"
+              ></span>
+              ONLINE
+            </span>
+          </div>
+
+          <!-- stats -->
+          <dl class="mt-6 space-y-px">
+            {
+              stats.map((item) => (
+                <div class="group/stat flex items-baseline justify-between border-b border-[var(--border-faint)] py-3 last:border-0">
+                  <dt class="text-[13.5px] text-[var(--muted)]">
+                    {item.label}
+                  </dt>
+                  <dd class="mono text-[20px] font-medium tabular-nums text-[var(--foreground-strong)] transition-transform duration-300 ease-[var(--ease-out)] group-hover/stat:translate-x-[-3px]">
+                    {String(item.value).padStart(2, '0')}
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div
+            class="mt-6 flex items-center justify-between border-t border-[var(--border-faint)] pt-5"
+          >
+            <span class="mono text-[11px] text-[var(--faint)]">最近更新</span>
+            <span class="mono text-[13px] text-[var(--foreground)]"
+              >{updated}</span
+            >
+          </div>
+
+          <!-- decorative terminal line -->
+          <div
+            class="mono mt-5 flex items-center gap-1.5 text-[11px] text-[var(--faint)]"
+          >
+            <span class="text-[var(--primary)]">$</span>
+            <span>whoami</span>
+            <span class="cursor-blink text-[var(--foreground)]">▍</span>
+          </div>
+        </div>
+
+        <p
+          class="mono mt-5 hidden text-center text-[11px] tracking-[0.18em] text-[var(--faint)] uppercase lg:block"
+        >
+          Code · Build · Share
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '~/lib/hero-animation';
+</script>

@@ -1,0 +1,23 @@
+---
+import { getFeaturedProjects } from '~/lib/content';
+import { homeConfig } from '~/config/home';
+import SectionHeading from './SectionHeading.astro';
+import ProjectCard from './ProjectCard.astro';
+
+const projects = await getFeaturedProjects(homeConfig.featuredProjects);
+---
+
+<section id="projects" class="container-page pt-24 sm:pt-32" aria-label="我的项目">
+  <SectionHeading
+    index="04"
+    title="我的项目"
+    en="Projects"
+    description="一些认真做过、正在打磨，或纯粹为了验证想法的技术实践。"
+    href="/projects"
+    hrefLabel="全部项目"
+  />
+
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
+</section>

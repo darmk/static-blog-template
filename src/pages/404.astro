@@ -1,0 +1,51 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { secondaryNavigation } from '~/config/navigation';
+
+const links = [
+  { label: '返回首页', href: '/', hint: 'Home' },
+  ...secondaryNavigation,
+];
+---
+
+<BaseLayout title={`404 — 页面不存在`} description="这个页面不存在。" noindex>
+  <section class="relative flex min-h-[86vh] items-center overflow-hidden">
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      <div class="grid-bg"></div>
+      <div
+        class="absolute inset-0"
+        style="background: radial-gradient(560px circle at 50% 42%, var(--primary-soft), transparent 70%);"
+      >
+      </div>
+    </div>
+
+    <div class="container-page text-center">
+      <p class="mono text-[13px] tracking-[0.3em] text-[var(--faint)]">ERROR · NOT FOUND</p>
+
+      <h1 class="mono mt-6 text-[88px] font-semibold leading-none tracking-[-0.04em] text-[var(--foreground-strong)] sm:text-[128px]">
+        <span class="text-gradient">404</span>
+      </h1>
+
+      <p class="mt-6 text-[15px] text-[var(--muted)]">
+        这个页面不存在，或者已经搬走了。
+      </p>
+
+      <p class="mono mt-4 text-[12px] text-[var(--faint)]">
+        <span class="text-[var(--primary)]">$</span> curl -I
+        <span class="text-[var(--cyan)]">{Astro.url.pathname}</span> → 404
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+        <a href="/" class="btn btn-primary">
+          返回首页
+          <svg class="btn-arrow h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        {links.slice(1).map((link) => (
+          <a href={link.href} class="btn btn-ghost">{link.label}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

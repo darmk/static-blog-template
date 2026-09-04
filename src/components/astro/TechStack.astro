@@ -1,0 +1,55 @@
+---
+import { techStack } from '~/config/tech-stack';
+---
+
+<section id="stack" class="pt-24 sm:pt-32" aria-label="技术栈">
+  <div class="container-page">
+    <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="min-w-0">
+        <div class="mb-3 flex items-center gap-3">
+          <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">06</span>
+          <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+          <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">Stack</span>
+        </div>
+        <h2 class="text-balance text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[var(--foreground-strong)] sm:text-[32px]">
+          日常在用的工具
+        </h2>
+        <p class="mt-2.5 max-w-[52ch] text-[14px] leading-relaxed text-[var(--muted)]">
+          不追新，只留真正解决问题的。
+        </p>
+      </div>
+      <p class="mono shrink-0 text-[11px] text-[var(--faint)]">
+        {techStack.length} items
+      </p>
+    </div>
+  </div>
+
+  <!-- 双向 Marquee：纯 CSS，hover 暂停，reduced-motion 停止 -->
+  <div class="mask-fade-x select-none space-y-3" aria-hidden="true">
+    {
+      [techStack.slice(0, Math.ceil(techStack.length / 2)), techStack.slice(Math.ceil(techStack.length / 2))].map(
+        (row, rowIndex) => (
+          <div class="flex overflow-hidden">
+            <div
+              class:list={['marquee', rowIndex === 1 && 'marquee-reverse']}
+              style={`--marquee-duration: ${rowIndex === 1 ? '52s' : '44s'};`}
+            >
+              {[0, 1].map(() =>
+                row.map((tech) => (
+                  <span class="mono flex items-center gap-3 whitespace-nowrap px-5 py-2 text-[13px] text-[var(--muted)]">
+                    <span class="h-1 w-1 rounded-full bg-[var(--border-strong)]" />
+                    {tech.name}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        )
+      )
+    }
+  </div>
+
+  <p class="sr-only">
+    技术栈：{techStack.map((t) => t.name).join('、')}
+  </p>
+</section>

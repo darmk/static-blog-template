@@ -1,0 +1,147 @@
+---
+/**
+ * 文章目录 —— Desktop: Sticky 侧栏；Mobile: 折叠面板。
+ * Active 高亮由原生脚本驱动（单一 IntersectionObserver + rAF）。
+ */
+export interface TocItem {
+  depth: 2 | 3;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  items: TocItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+<nav aria-label="本文目录" class="toc-root">
+  <details class="group lg:hidden">
+    <summary
+      class="flex cursor-pointer list-none items-center justify-between rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[13.5px] text-[var(--foreground)] transition-colors hover:border-[var(--border-strong)]"
+    >
+      <span class="flex items-center gap-2">
+        <svg class="h-4 w-4 text-[var(--faint)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 6h16M4 10h16M4 14h10M4 18h7"></path>
+        </svg>
+        本文目录
+      </span>
+      <svg class="h-4 w-4 text-[var(--faint)] transition-transform duration-300 group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
+    </summary>
+    <ul class="mt-2 space-y-0.5 border-l border-[var(--border)] pl-3">
+      {items.map((item) => (
+        <li>
+          <a
+            href={`#${item.slug}`}
+            class:list={[
+              'block py-1.5 text-[13px] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]',
+              item.depth === 3 && 'pl-3',
+            ]}
+            data-toc-link={item.slug}
+          >
+            {item.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </details>
+
+  <div class="hidden lg:block">
+    <p class="eyebrow">本文目录</p>
+    <ul class="toc-list relative mt-4">
+      {items.map((item) => (
+        <li>
+          <a
+            href={`#${item.slug}`}
+            class:list={[
+              'toc-link relative flex items-baseline py-[7px] text-[12.5px] leading-snug text-[var(--muted)] transition-[color,padding] duration-300 ease-[var(--ease-out)] hover:text-[var(--foreground)]',
+              item.depth === 3 && 'pl-4 text-[12px]',
+            ]}
+            data-toc-link={item.slug}
+          >
+            {item.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+)}
+
+<script>
+  function initToc() {
+    const root = document.querySelector('.toc-root');
+    if (!root) return;
+
+    const links = [
+      ...root.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
+    ];
+    if (!links.length) return;
+
+    const headings = links
+      .map((link) => document.getElementById(link.dataset.tocLink ?? ''))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    if (!headings.length) return;
+
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.3;
+      let active = -1;
+
+      headings.forEach((heading, index) => {
+        if (heading.getBoundingClientRect().top <= line) active = index;
+      });
+
+      links.forEach((link, index) => {
+        if (index === active) {
+          link.classList.add('toc-active');
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.classList.remove('toc-active');
+          link.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    document.addEventListener('astro:after-swap', initToc, { once: true });
+  }
+
+  initToc();
+</script>
+
+<style>
+  .toc-link::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    height: 1px;
+    width: 0;
+    background: var(--primary);
+    transition: width var(--duration-normal) var(--ease-out);
+  }
+  .toc-link.toc-active {
+    color: var(--foreground-strong);
+    padding-left: 4px;
+  }
+  .toc-link.toc-active::before {
+    width: 10px;
+  }
+  [data-toc-link].toc-active {
+    color: var(--primary);
+  }
+</style>

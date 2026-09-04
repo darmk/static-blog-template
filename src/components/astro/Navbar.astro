@@ -1,0 +1,335 @@
+---
+import { siteConfig } from '~/config/site';
+import { navigation } from '~/config/navigation';
+import { CommandPalette } from '~/components/react/CommandPalette';
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+function isActive(href: string): boolean {
+  if (href === '/') return path === '/';
+  return path === href || path.startsWith(`${href}/`);
+}
+---
+
+<header
+  id="site-nav"
+  class="fixed top-0 left-0 right-0 z-50 h-[var(--nav-height)] transition-[background-color,backdrop-filter,border-color] duration-300 ease-[var(--ease-out)] border-b border-transparent"
+  data-nav
+>
+  <div
+    class="container-page flex h-full items-center justify-between gap-6"
+  >
+    <!-- brand ------------------------------------------------------------ -->
+    <a
+      href="/"
+      class="group flex items-baseline gap-2 shrink-0"
+      aria-label={`${siteConfig.name} 首页`}
+    >
+      <span
+        class="text-[15px] font-semibold tracking-tight text-[var(--foreground-strong)]"
+        >darmk</span
+      >
+      <span
+        class="hidden sm:inline text-[11px] font-mono text-[var(--faint)] transition-colors duration-200 group-hover:text-[var(--muted)]"
+        >/ 个人空间</span
+      >
+    </a>
+
+    <!-- desktop nav ------------------------------------------------------ -->
+    <nav
+      class="hidden md:flex items-center gap-1"
+      aria-label="主导航"
+    >
+      {
+        navigation.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <a
+              href={item.href}
+              aria-current={active ? 'page' : undefined}
+              class:list={[
+                'nav-link relative px-3 py-2 text-[14px] transition-colors duration-200',
+                active
+                  ? 'text-[var(--foreground-strong)]'
+                  : 'text-[var(--muted)] hover:text-[var(--foreground)]',
+              ]}
+            >
+              {item.label}
+              <span
+                class:list={[
+                  'nav-indicator absolute left-3 right-3 -bottom-px h-px origin-center bg-[var(--primary)] transition-transform duration-300 ease-[var(--ease-out)]',
+                  active ? 'scale-x-100' : 'scale-x-0',
+                ]}
+              />
+              {active && (
+                <span
+                  class="absolute -top-px left-1/2 -translate-x-1/2 h-[3px] w-[3px] rounded-full bg-[var(--primary)]"
+                  aria-hidden="true"
+                />
+              )}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- actions ---------------------------------------------------------- -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <CommandPalette client:idle />
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] border border-transparent text-[var(--muted)] transition-colors duration-200 hover:border-[var(--border)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
+        aria-label="切换主题"
+        title="切换主题"
+      >
+        <svg
+          class="theme-icon-dark h-[17px] w-[17px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg
+          class="theme-icon-light hidden h-[17px] w-[17px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="4"></circle>
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+          ></path>
+        </svg>
+      </button>
+
+      {
+        siteConfig.github && (
+          <a
+            href={siteConfig.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hidden sm:flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] border border-transparent text-[var(--muted)] transition-colors duration-200 hover:border-[var(--border)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
+            aria-label="GitHub"
+            title="GitHub"
+          >
+            <svg
+              class="h-[17px] w-[17px]"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"
+              />
+            </svg>
+          </a>
+        )
+      }
+
+      <!-- mobile menu trigger -->
+      <button
+        type="button"
+        id="mobile-menu-open"
+        class="flex md:hidden h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+        aria-label="打开菜单"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg
+          class="h-[17px] w-[17px]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- mobile menu (vanilla, no island) ------------------------------------- -->
+<div
+  id="mobile-menu"
+  class="fixed inset-0 z-[60] md:hidden hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="移动端导航"
+>
+  <div class="mobile-menu-backdrop absolute inset-0 bg-black/50 backdrop-blur-sm" data-menu-close></div>
+  <nav
+    class="absolute right-0 top-0 h-full w-[min(320px,85vw)] border-l border-[var(--border)] bg-[var(--background)] p-6"
+  >
+    <div class="flex items-center justify-between">
+      <span class="eyebrow">导航</span>
+      <button
+        type="button"
+        class="flex h-8 w-8 items-center justify-center text-[var(--muted)]"
+        aria-label="关闭菜单"
+        data-menu-close
+      >
+        <svg
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="mt-8 space-y-1">
+      {
+        navigation.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'flex items-baseline justify-between border-b border-[var(--border-faint)] py-3.5 transition-colors duration-200',
+                  active
+                    ? 'text-[var(--foreground-strong)]'
+                    : 'text-[var(--foreground)]',
+                ]}
+              >
+                <span class="text-[17px]">{item.label}</span>
+                <span class="mono text-[11px] text-[var(--faint)]">
+                  {item.en}
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <div class="mt-8 flex flex-wrap gap-2">
+      <button
+        type="button"
+        data-search-open
+        class="btn btn-ghost flex-1 justify-center text-[13px]"
+      >
+        搜索
+      </button>
+      <button
+        type="button"
+        id="theme-toggle-mobile"
+        class="btn btn-ghost flex-1 justify-center text-[13px]"
+      >
+        主题
+      </button>
+    </div>
+  </nav>
+</div>
+
+<script>
+  function initNav() {
+    const nav = document.querySelector<HTMLElement>('[data-nav]');
+    if (!nav) return;
+
+    const onScroll = () => {
+      const scrolled = window.scrollY > 12;
+      nav.style.backgroundColor = scrolled
+        ? 'color-mix(in srgb, var(--background) 78%, transparent)'
+        : 'transparent';
+      nav.style.backdropFilter = scrolled ? 'blur(14px)' : 'none';
+      nav.style.borderBottomColor = scrolled ? 'var(--border)' : 'transparent';
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ---- mobile menu ---------------------------------------------------
+    const menu = document.getElementById('mobile-menu');
+    const openBtn = document.getElementById('mobile-menu-open');
+
+    let lastFocused: HTMLElement | null = null;
+
+    const close = () => {
+      if (!menu) return;
+      menu.classList.add('hidden');
+      document.body.style.overflow = '';
+      openBtn?.setAttribute('aria-expanded', 'false');
+      lastFocused?.focus();
+    };
+
+    const open = () => {
+      if (!menu) return;
+      lastFocused = document.activeElement as HTMLElement;
+      menu.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      openBtn?.setAttribute('aria-expanded', 'true');
+      menu.querySelector<HTMLElement>('a')?.focus();
+    };
+
+    openBtn?.addEventListener('click', open);
+    menu?.querySelectorAll('[data-menu-close]').forEach((el) =>
+      el.addEventListener('click', close)
+    );
+    menu?.querySelectorAll('a').forEach((el) =>
+      el.addEventListener('click', close)
+    );
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu?.classList.contains('hidden')) close();
+    });
+
+    // ---- theme ----------------------------------------------------------
+    const apply = (theme: string) => {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('theme', theme);
+    };
+    const current = () =>
+      document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+
+    const toggle = () => apply(current() === 'dark' ? 'light' : 'dark');
+
+    document
+      .getElementById('theme-toggle')
+      ?.addEventListener('click', toggle);
+    document
+      .getElementById('theme-toggle-mobile')
+      ?.addEventListener('click', toggle);
+
+    // keep the icon in sync when the palette changes the theme
+    window.addEventListener('themechange', () => {
+      /* icon visibility is handled with CSS on [data-theme] */
+    });
+  }
+
+  initNav();
+  document.addEventListener('astro:after-swap', initNav);
+</script>
+
+<style>
+  .nav-link:hover .nav-indicator {
+    transform: scaleX(1);
+  }
+  [data-theme='dark'] .theme-icon-light {
+    display: none;
+  }
+  [data-theme='light'] .theme-icon-dark {
+    display: none;
+  }
+  [data-theme='light'] .theme-icon-light {
+    display: block;
+  }
+</style>

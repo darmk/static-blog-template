@@ -1,0 +1,71 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getPosts, formatDate, postUrl } from '~/lib/content';
+
+const posts = await getPosts();
+
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.publishedAt.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(post);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<BaseLayout title={`归档 — darmk 个人空间`} description="全部文章的时间线归档。">
+  <div class="container-narrow pb-10 pt-[calc(var(--nav-height)+56px)]">
+    <header class="max-w-[52ch]">
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">ARCHIVE</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">
+          {posts.length} posts
+        </span>
+      </div>
+      <h1 class="text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        归档
+      </h1>
+      <p class="mt-4 text-[15px] leading-relaxed text-[var(--muted)]">
+        全部文章，按时间倒序。
+      </p>
+    </header>
+
+    <div class="mt-16 space-y-16">
+      {
+        years.map((year) => (
+          <section aria-label={`${year} 年归档`}>
+            <div class="mb-6 flex items-center gap-4">
+              <span class="text-[22px] font-semibold tracking-tight text-[var(--foreground-strong)]">
+                {year}
+              </span>
+              <span class="mono text-[11px] text-[var(--faint)]">
+                {byYear.get(year)!.length} 篇
+              </span>
+              <span class="h-px flex-1 bg-[var(--border-faint)]" />
+            </div>
+
+            <ul class="space-y-0">
+              {byYear.get(year)!.map((post, index) => (
+                <li class="group flex items-baseline gap-4 border-b border-[var(--border-faint)] py-3.5 transition-[opacity,transform] duration-300 hover:translate-x-1 sm:gap-6">
+                  <span class="mono w-10 shrink-0 text-[11px] tabular-nums text-[var(--faint)]">
+                    {formatDate(post.data.publishedAt).slice(5)}
+                  </span>
+                  <a
+                    href={postUrl(post)}
+                    class="min-w-0 flex-1 truncate text-[14.5px] text-[var(--foreground)] transition-colors group-hover:text-[var(--foreground-strong)]"
+                  >
+                    {post.data.title}
+                  </a>
+                  <span class="mono hidden shrink-0 text-[10.5px] text-[var(--faint)] sm:inline">
+                    {post.data.category}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

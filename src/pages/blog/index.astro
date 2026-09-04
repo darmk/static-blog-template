@@ -1,0 +1,177 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PostRow from '~/components/astro/PostRow.astro';
+import { getPosts, readingTime } from '~/lib/content';
+import { categories } from '~/config/categories';
+
+const allPosts = await getPosts();
+// 静态站点无法在服务端读取 ?category=，所有文章都渲染；
+// 真正的分类筛选由底部脚本在客户端按 URL 参数完成（零额外请求）。
+const posts = allPosts;
+const initialCategory = Astro.url.searchParams.get('category') ?? 'all';
+
+const chips = [
+  { key: 'all', label: '全部' },
+  ...categories.map((c) => ({ key: c.key, label: c.label })),
+];
+
+// 按年份分组（用于归档感的视觉节奏）
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.publishedAt.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(post);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<BaseLayout
+  title={`文章 — darmk 个人空间`}
+  description="记录开发过程中的实践、问题与思考。"
+>
+  <div class="container-page pb-8 pt-[calc(var(--nav-height)+56px)]">
+    <!-- 页头 -->
+    <header class="max-w-[52ch]">
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">BLOG</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase" id="post-count">
+          {allPosts.length} posts
+        </span>
+      </div>
+      <h1 class="text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        文章
+      </h1>
+      <p class="mt-4 text-[15px] leading-relaxed text-[var(--muted)]">
+        记录开发过程中的实践、问题与思考。
+      </p>
+    </header>
+
+    <!-- 分类筛选：链接驱动，客户端按 ?category= 即时筛选 -->
+    <nav class="mt-10 flex flex-wrap gap-2" aria-label="分类筛选" data-cat-nav>
+      {
+        chips.map((chip) => {
+          const active = chip.key === initialCategory;
+          return (
+            <a
+              href={chip.key === 'all' ? '/blog' : `/blog?category=${chip.key}`}
+              data-cat-chip={chip.key}
+              aria-current={active ? 'page' : undefined}
+              class:list={[
+                'cat-chip mono rounded-[var(--radius-xs)] border px-3 py-1.5 text-[12px] transition-colors duration-200',
+                active ? 'is-active' : '',
+              ]}
+            >
+              {chip.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- 文章列表：按年分组的 Editorial List -->
+    {
+      posts.length === 0 ? (
+        <div class="mt-20 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] py-20 text-center">
+          <p class="mono text-[12px] text-[var(--faint)]">这个分类还没有文章</p>
+          <a href="/blog" class="mt-4 inline-block text-[13.5px] text-[var(--primary)] hover:underline">
+            查看全部文章 →
+          </a>
+        </div>
+      ) : (
+        years.map((year) => (
+          <section class="mt-14" aria-label={`${year} 年`} data-year-section={year}>
+            <div class="mb-4 flex items-center gap-4">
+              <span class="mono text-[13px] font-medium text-[var(--foreground-strong)]">
+                {year}
+              </span>
+              <span class="h-px flex-1 bg-[var(--border-faint)]" />
+              <span class="mono text-[11px] text-[var(--faint)]" data-year-count>
+                {byYear.get(year)!.length} 篇
+              </span>
+            </div>
+            <div class="post-list border-t border-[var(--border-faint)]">
+              {byYear.get(year)!.map((post, index) => (
+                <PostRow
+                  post={post}
+                  index={index}
+                  showDescription
+                  showReadingTime
+                  readingMinutes={readingTime(post.body)}
+                />
+              ))}
+            </div>
+          </section>
+        ))
+      )
+    }
+
+    <!-- 筛选结果为空时的提示（脚本控制显隐） -->
+    <div id="filter-empty" class="mt-20 hidden rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] py-20 text-center">
+      <p class="mono text-[12px] text-[var(--faint)]">这个分类还没有文章</p>
+      <a href="/blog" class="mt-4 inline-block text-[13.5px] text-[var(--primary)] hover:underline">
+        查看全部文章 →
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function initBlogFilter() {
+      const rows = Array.from(document.querySelectorAll('[data-category]'));
+      if (!rows.length) return;
+      const chips = Array.from(document.querySelectorAll('[data-cat-chip]'));
+      const yearSections = Array.from(document.querySelectorAll('[data-year-section]'));
+      const totalCount = document.getElementById('post-count');
+      const emptyState = document.getElementById('filter-empty');
+
+      function apply(cat: string) {
+        let total = 0;
+        const perYear = new Map<string, number>();
+        rows.forEach((row) => {
+          const el = row as HTMLElement;
+          const match = cat === 'all' || el.dataset.category === cat;
+          el.style.display = match ? '' : 'none';
+          if (match) {
+            total++;
+            const y = el.dataset.year;
+            if (y) perYear.set(y, (perYear.get(y) || 0) + 1);
+          }
+        });
+        yearSections.forEach((sec) => {
+          const s = sec as HTMLElement;
+          const y = s.dataset.yearSection;
+          const n = (y && perYear.get(y)) || 0;
+          s.style.display = n > 0 ? '' : 'none';
+          const c = s.querySelector('[data-year-count]');
+          if (c) c.textContent = `${n} 篇`;
+        });
+        if (totalCount) totalCount.textContent = `${total} posts`;
+        if (emptyState) emptyState.style.display = total > 0 ? 'none' : '';
+        chips.forEach((chip) => {
+          const on = (chip as HTMLElement).dataset.catChip === cat;
+          chip.classList.toggle('is-active', on);
+          if (on) chip.setAttribute('aria-current', 'page');
+          else chip.removeAttribute('aria-current');
+        });
+      }
+
+      const readCat = () => new URLSearchParams(location.search).get('category') || 'all';
+      apply(readCat());
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', (e) => {
+          e.preventDefault();
+          const cat = (chip as HTMLElement).dataset.catChip || 'all';
+          const url = cat === 'all' ? '/blog' : `/blog?category=${encodeURIComponent(cat)}`;
+          history.pushState({}, '', url);
+          apply(cat);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+      window.addEventListener('popstate', () => apply(readCat()));
+    }
+
+    initBlogFilter();
+    document.addEventListener('astro:after-swap', initBlogFilter);
+  </script>
+</BaseLayout>

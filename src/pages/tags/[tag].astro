@@ -1,0 +1,96 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PostRow from '~/components/astro/PostRow.astro';
+import { getPosts, getProjects, readingTime, projectUrl } from '~/lib/content';
+
+export async function getStaticPaths() {
+  const [posts, projects] = await Promise.all([getPosts(), getProjects()]);
+
+  const tagSet = new Set<string>();
+  for (const post of posts) for (const tag of post.data.tags) tagSet.add(tag);
+  for (const project of projects) for (const tag of project.data.stack) tagSet.add(tag);
+
+  return [...tagSet].map((tag) => ({ params: { tag }, props: { tag } }));
+}
+
+const { tag } = Astro.props;
+const [allPosts, allProjects] = await Promise.all([getPosts(), getProjects()]);
+
+const posts = allPosts.filter((p) => p.data.tags.includes(tag));
+const projects = allProjects.filter((p) => p.data.stack.includes(tag));
+---
+
+<BaseLayout title={`#${tag} — darmk 个人空间`} description={`标签 ${tag} 下的全部内容`}>
+  <div class="container-narrow pb-10 pt-[calc(var(--nav-height)+56px)]">
+    <header class="max-w-[52ch]">
+      <a href="/tags" class="mono inline-flex items-center gap-2 text-[12px] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]">
+        ← 全部标签
+      </a>
+      <h1 class="mt-6 text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        <span class="text-[var(--primary)]">#</span>{tag}
+      </h1>
+      <p class="mono mt-4 text-[12px] text-[var(--faint)]">
+        {posts.length} 篇文章{projects.length > 0 && ` · ${projects.length} 个项目`}
+      </p>
+    </header>
+
+    {
+      posts.length > 0 && (
+        <section class="mt-14" aria-label="文章">
+          <div class="mb-4 flex items-center gap-4">
+            <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">文章</span>
+            <span class="h-px flex-1 bg-[var(--border-faint)]" />
+          </div>
+          <div class="post-list border-t border-[var(--border-faint)]">
+            {posts.map((post, index) => (
+              <PostRow post={post} index={index} showReadingTime readingMinutes={readingTime(post.body)} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      projects.length > 0 && (
+        <section class="mt-14" aria-label="项目">
+          <div class="mb-4 flex items-center gap-4">
+            <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">项目</span>
+            <span class="h-px flex-1 bg-[var(--border-faint)]" />
+          </div>
+          <ul class="divide-y divide-[var(--border-faint)] border-y border-[var(--border-faint)]">
+            {projects.map((project) => (
+              <li>
+                <a
+                  href={projectUrl(project)}
+                  class="group flex items-baseline justify-between gap-4 py-5 transition-transform duration-300 ease-[var(--ease-out)] hover:translate-x-1"
+                >
+                  <span class="min-w-0">
+                    <span class="block truncate text-[15.5px] font-medium text-[var(--foreground)] group-hover:text-[var(--foreground-strong)]">
+                      {project.data.title}
+                    </span>
+                    <span class="mono mt-1 block truncate text-[11px] text-[var(--faint)]">
+                      {project.data.stack.join(' · ')}
+                    </span>
+                  </span>
+                  <span class="text-[var(--faint)] transition-[color,transform] duration-300 group-hover:translate-x-1 group-hover:text-[var(--primary)]" aria-hidden="true">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      posts.length === 0 && projects.length === 0 && (
+        <div class="mt-20 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] py-20 text-center">
+          <p class="mono text-[12px] text-[var(--faint)]">这个标签下暂时没有内容</p>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

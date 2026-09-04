@@ -1,0 +1,56 @@
+---
+/**
+ * 顶部阅读进度条 —— 2px，品牌色。
+ * rAF 节流 + transform: scaleX（合成器友好），与 ClientRouter 兼容。
+ */
+interface Props {
+  target?: string;
+}
+
+const { target = 'article' } = Astro.props;
+---
+
+<div
+  class="reading-progress fixed inset-x-0 top-0 z-[70] h-[2px] origin-left scale-x-0"
+  style="background: linear-gradient(to right, var(--primary), var(--cyan));"
+  data-progress
+  aria-hidden="true"
+>
+</div>
+
+<script>
+  function initReadingProgress() {
+    const bar = document.querySelector<HTMLElement>('[data-progress]');
+    const article = document.querySelector<HTMLElement>('article');
+
+    if (!bar || !article) {
+      if (bar) bar.style.transform = 'scaleX(0)';
+      return;
+    }
+
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0) {
+        bar.style.transform = 'scaleX(0)';
+        return;
+      }
+      const progress = Math.min(1, Math.max(0, -rect.top / total));
+      bar.style.transform = `scaleX(${progress})`;
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+
+  initReadingProgress();
+  document.addEventListener('astro:after-swap', initReadingProgress);
+</script>

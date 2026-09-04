@@ -1,0 +1,125 @@
+---
+import type { Post } from '~/lib/content';
+import { categoryLabel, formatDate, postUrl } from '~/lib/content';
+import SectionHeading from './SectionHeading.astro';
+
+interface Props {
+  post: Post;
+  /** 真实内容计数，让装饰性代码视觉与实际数据保持一致 */
+  postCount?: number;
+  projectCount?: number;
+  noteCount?: number;
+}
+
+const { post, postCount = 0, projectCount = 0, noteCount = 0 } = Astro.props;
+const date = formatDate(post.data.publishedAt);
+---
+
+<section id="featured" class="container-page pt-24 sm:pt-28" aria-label="推荐文章">
+  <SectionHeading index="01" title="推荐文章" en="Featured" description="精选内容 —— 最能代表当前阶段写作方向的一篇。" />
+
+  <div class="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:gap-12">
+    <!-- 左：文章 -->
+    <a
+      href={postUrl(post)}
+      class="spotlight group relative flex flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-7 transition-colors duration-300 hover:border-[var(--border-strong)] sm:p-9"
+      data-spotlight
+      data-reveal
+    >
+      <div class="flex items-center gap-3">
+        <span class="mono rounded-[var(--radius-xs)] border border-[var(--primary-glow)] bg-[var(--primary-soft)] px-2 py-1 text-[10.5px] tracking-[0.1em] text-[var(--primary)]">
+          FEATURED
+        </span>
+        <span class="mono text-[11.5px] text-[var(--faint)]">
+          {categoryLabel(post.data.category)}
+        </span>
+      </div>
+
+      <h3 class="mt-6 max-w-[22ch] text-balance text-[24px] font-semibold leading-[1.3] tracking-[-0.02em] text-[var(--foreground-strong)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1 sm:text-[30px]">
+        {post.data.title}
+      </h3>
+
+      <p class="mt-4 max-w-[52ch] text-pretty text-[14.5px] leading-[1.85] text-[var(--muted)]">
+        {post.data.description}
+      </p>
+
+      <div class="mt-8 flex items-center justify-between">
+        <span class="mono flex items-center gap-4 text-[11.5px] text-[var(--faint)]">
+          <span>{date}</span>
+          {post.data.tags.slice(0, 3).map((tag) => (
+            <span class="hidden sm:inline">#{tag}</span>
+          ))}
+        </span>
+        <span
+          class="inline-flex items-center gap-1.5 text-[13px] text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--primary)]"
+        >
+          阅读全文
+          <svg
+            class="h-3.5 w-3.5 transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- 右：程序化代码视觉 -->
+    <div
+      class="relative hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[#0a0d11] lg:block"
+      aria-hidden="true"
+      data-reveal
+    >
+      <div class="code-head" style="height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--border);">
+        <span class="code-dots" style="display: flex; gap: 5px;">
+          <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,99,89,.5);display:block"></i>
+          <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,189,46,.5);display:block"></i>
+          <i style="width:8px;height:8px;border-radius:50%;background:rgba(39,201,63,.5);display:block"></i>
+        </span>
+        <span class="mono" style="font-size: 12px; color: var(--muted);">src/space.ts</span>
+      </div>
+
+      <div class="mono space-y-2.5 p-6 text-[12.5px] leading-[1.9]">
+        <p class="text-[var(--faint)]">// 这个站点由内容驱动</p>
+        <p><span class="text-[var(--purple)]">const</span> <span class="text-[var(--foreground)]">space</span> = <span class="text-[var(--cyan)]">createBlog</span>{'({'}</p>
+        <p class="pl-5 code-hover-line">articles: <span class="text-[var(--amber)]">{postCount}</span>,</p>
+        <p class="pl-5 code-hover-line">projects: <span class="text-[var(--amber)]">{projectCount}</span>,</p>
+        <p class="pl-5 code-hover-line">notes: <span class="text-[var(--amber)]">{noteCount}</span>,</p>
+        <p class="pl-5 code-hover-line">stack: [<span class="text-[var(--cyan)]">'Astro'</span>, <span class="text-[var(--cyan)]">'Three.js'</span>],</p>
+        <p class="pl-5 code-hover-line">focus: <span class="text-[var(--cyan)]">'Web · AI · 3D'</span>,</p>
+        <p>{'})'}</p>
+        <p class="text-[var(--faint)]">// Code · Build · Share</p>
+      </div>
+
+      <div
+        class="absolute inset-x-0 bottom-0 h-24"
+        style="background: linear-gradient(to top, #0a0d11, transparent);"
+      >
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .code-hover-line {
+    color: var(--muted);
+    transition: color 250ms var(--ease-out), transform 250ms var(--ease-out);
+    border-left: 2px solid transparent;
+    margin-left: -8px;
+    padding-left: 18px;
+  }
+  .group:hover ~ * .code-hover-line,
+  a:hover + div .code-hover-line {
+    color: var(--foreground);
+  }
+  a:hover + div .code-hover-line:nth-child(2) {
+    transform: translateX(2px);
+    border-left-color: var(--primary);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .code-hover-line {
+      transition: none;
+    }
+  }
+</style>

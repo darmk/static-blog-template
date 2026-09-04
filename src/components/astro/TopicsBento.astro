@@ -1,0 +1,105 @@
+---
+import { categories, getCategoryLabel } from '~/config/categories';
+import { getCategoryCounts } from '~/lib/content';
+import SectionHeading from './SectionHeading.astro';
+import ProgrammaticVisual from './ProgrammaticVisual.astro';
+
+const counts = await getCategoryCounts();
+const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+const spanClass: Record<string, string> = {
+  lg: 'sm:col-span-2 sm:row-span-2',
+  md: 'sm:col-span-2',
+  sm: 'sm:col-span-1',
+};
+---
+
+<section id="topics" class="container-page pt-24 sm:pt-32" aria-label="文章分类">
+  <SectionHeading
+    index="03"
+    title="按主题浏览"
+    en="Topics"
+    description="内容按六个方向沉淀 —— 悬停卡片可以预览每个方向的视觉语言。"
+  />
+
+  <div class="grid gap-3 sm:grid-cols-4 sm:gap-4">
+    {
+      categories.map((cat) => {
+        const count = counts[cat.key] ?? 0;
+        return (
+          <a
+            href={`/blog?category=${cat.key}`}
+            class:list={[
+              'group spotlight relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] transition-[border-color,transform] duration-300 ease-[var(--ease-out)] hover:border-[var(--border-strong)]',
+              spanClass[cat.span],
+              cat.span === 'lg' ? 'min-h-[280px] sm:min-h-[420px]' : 'min-h-[200px]',
+              cat.span === 'sm' && 'min-h-[180px]',
+            ]}
+            data-spotlight
+            data-reveal
+          >
+            <!-- 程序化视觉：按分类生成，不用图片 -->
+            <div
+              class:list={[
+                'absolute inset-0 opacity-60 transition-opacity duration-500 group-hover:opacity-100',
+                cat.span === 'lg' ? 'opacity-80' : '',
+              ]}
+            >
+              <ProgrammaticVisual variant={cat.visual} animated />
+            </div>
+
+            <!-- 渐变遮罩，保证文字可读 -->
+            <div
+              class="absolute inset-0"
+              style="background: linear-gradient(to top, color-mix(in srgb, var(--surface) 92%, transparent) 0%, color-mix(in srgb, var(--surface) 40%, transparent) 55%, transparent 100%);"
+              aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative mt-auto flex w-full items-end justify-between gap-4 p-5 sm:p-6">
+              <div class="min-w-0">
+                <p class="mono text-[10.5px] tracking-[0.14em] text-[var(--faint)] uppercase">
+                  {cat.en}
+                </p>
+                <h3 class="mt-1.5 text-[16px] font-semibold leading-snug text-[var(--foreground-strong)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-0.5">
+                  {cat.label}
+                </h3>
+
+                {cat.span === 'lg' && (
+                  <p class="mt-2 max-w-[36ch] text-[12.5px] leading-relaxed text-[var(--muted)]">
+                    {cat.description}
+                  </p>
+                )}
+
+                <p class="mono mt-3 text-[11px] text-[var(--faint)]">
+                  {count > 0 ? `${count} 篇` : '即将更新'}
+                </p>
+              </div>
+
+              <span
+                class="shrink-0 self-end text-[var(--faint)] transition-[color,transform] duration-300 ease-[var(--ease-out)] group-hover:translate-x-1 group-hover:text-[var(--primary)]"
+                aria-hidden="true"
+              >
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </div>
+          </a>
+        );
+      })
+    }
+  </div>
+
+  <p class="mono mt-5 text-right text-[11px] text-[var(--faint)]">
+    {total} 篇文章 · 6 个方向 · 持续沉淀
+  </p>
+</section>

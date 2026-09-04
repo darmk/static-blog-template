@@ -1,0 +1,75 @@
+---
+import { siteConfig } from '~/config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 文章页专用 */
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = siteConfig.description,
+  publishedTime,
+  modifiedTime,
+  tags = [],
+  type = 'website',
+  image = '/og.png',
+  noindex = false,
+} = Astro.props;
+
+const hasName = title?.includes(siteConfig.name) ?? false;
+const pageTitle = title
+  ? (hasName ? title : `${title} · ${siteConfig.shortName}`)
+  : `${siteConfig.name} · ${siteConfig.shortName}`;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url);
+const ogImage = new URL(image, Astro.site ?? siteConfig.url);
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex,nofollow" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteConfig.name} />
+<meta property="og:title" content={title ?? siteConfig.name} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content="zh_CN" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title ?? siteConfig.name} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{
+  type === 'article' && publishedTime && (
+    <>
+      <meta
+        property="article:published_time"
+        content={publishedTime.toISOString()}
+      />
+      {modifiedTime && (
+        <meta
+          property="article:modified_time"
+          content={modifiedTime.toISOString()}
+        />
+      )}
+      {tags.map((tag) => (
+        <meta property="article:tag" content={tag} />
+      ))}
+    </>
+  )
+}
+
+<meta name="author" content={siteConfig.author} />
+<meta name="generator" content={Astro.generator} />

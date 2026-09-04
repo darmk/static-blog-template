@@ -1,0 +1,169 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import TOC from '~/components/astro/TOC.astro';
+import ReadingProgress from '~/components/astro/ReadingProgress.astro';
+import WechatSection from '~/components/astro/WechatSection.astro';
+import {
+  getPosts,
+  getRelatedPosts,
+  categoryLabel,
+  formatDate,
+  readingTime,
+  postUrl,
+} from '~/lib/content';
+import { wechatConfig } from '~/config/wechat';
+import { siteConfig } from '~/config/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.data.slug ?? post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const tocItems = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => ({ depth: h.depth as 2 | 3, slug: h.slug, text: h.text }));
+
+const related = await getRelatedPosts(post, 3);
+const minutes = readingTime(post.body);
+const updated = post.data.updatedAt;
+
+const title = `${post.data.title} — ${siteConfig.shortName}`;
+---
+
+<BaseLayout
+  title={title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.publishedAt}
+  modifiedTime={updated}
+  tags={post.data.tags}
+>
+  <ReadingProgress />
+
+  <article class="container-narrow pt-[calc(var(--nav-height)+56px)]">
+    <!-- Article Header -->
+    <header class="mx-auto max-w-[var(--article-width)]">
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          href={`/blog?category=${post.data.category}`}
+          class="mono rounded-[var(--radius-xs)] border border-[var(--primary-glow)] bg-[var(--primary-soft)] px-2 py-1 text-[10.5px] tracking-[0.08em] text-[var(--primary)] transition-colors hover:border-[var(--primary)]"
+        >
+          {categoryLabel(post.data.category)}
+        </a>
+        {post.data.pinned && (
+          <span class="mono text-[10.5px] tracking-[0.08em] text-[var(--faint)]">
+            置顶
+          </span>
+        )}
+      </div>
+
+      <h1 class="mt-5 text-balance text-[30px] font-semibold leading-[1.28] tracking-[-0.02em] text-[var(--foreground-strong)] sm:text-[40px]">
+        {post.data.title}
+      </h1>
+
+      <p class="mt-5 text-pretty text-[15.5px] leading-[1.8] text-[var(--muted)]">
+        {post.data.description}
+      </p>
+
+      <div class="mono mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-[var(--border-faint)] py-4 text-[11.5px] text-[var(--faint)]">
+        <span>发布于 {formatDate(post.data.publishedAt)}</span>
+        {updated && <span>更新于 {formatDate(updated)}</span>}
+        <span>预计阅读 {minutes} 分钟</span>
+        <span class="ml-auto hidden sm:inline">darmk.dev</span>
+      </div>
+
+      {post.data.tags.length > 0 && (
+        <div class="mt-5 flex flex-wrap gap-2">
+          {post.data.tags.map((tag) => (
+            <a href={`/tags/${tag}`} class="chip transition-colors">
+              #{tag}
+            </a>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- 正文 + TOC -->
+    <div class="relative mt-14 lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-12">
+      <div class="prose mx-auto max-w-[var(--article-width)] lg:mx-0">
+        <Content />
+      </div>
+
+      <aside class="mt-12 lg:mt-0">
+        <div class="sticky top-[calc(var(--nav-height)+40px)]">
+          <TOC items={tocItems} />
+        </div>
+      </aside>
+    </div>
+
+    <!-- 文末 -->
+    {wechatConfig.enabled && wechatConfig.showOnArticle && (
+      <div class="mx-auto mt-16 max-w-[var(--article-width)]">
+        <WechatSection variant="compact" />
+      </div>
+    )}
+
+    {related.length > 0 && (
+      <section class="mx-auto mt-16 max-w-[var(--article-width)]" aria-label="相关文章">
+        <div class="mb-5 flex items-center gap-4">
+          <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">相关文章</span>
+          <span class="h-px flex-1 bg-[var(--border-faint)]"></span>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-3">
+          {
+            related.map((item) => (
+              <a
+                href={postUrl(item)}
+                class="group spotlight relative flex flex-col justify-between rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5 transition-colors duration-300 hover:border-[var(--border-strong)]"
+                data-spotlight
+              >
+                <div>
+                  <p class="mono text-[10.5px] text-[var(--faint)]">
+                    {categoryLabel(item.data.category)}
+                  </p>
+                  <h3 class="mt-2.5 line-clamp-2 text-[14.5px] font-medium leading-snug text-[var(--foreground)] transition-colors group-hover:text-[var(--foreground-strong)]">
+                    {item.data.title}
+                  </h3>
+                </div>
+                <p class="mono mt-4 flex items-center justify-between text-[11px] text-[var(--faint)]">
+                  <span>{formatDate(item.data.publishedAt)}</span>
+                  <span class="text-[var(--muted)] transition-[transform,color] duration-300 group-hover:translate-x-0.5 group-hover:text-[var(--primary)]">→</span>
+                </p>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+    )}
+
+    <!-- 评论（Giscus 配置后启用） -->
+    <div class="mx-auto mt-16 max-w-[var(--article-width)]">
+      <div
+        class="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] py-14 text-center"
+      >
+        <p class="mono text-[11.5px] text-[var(--faint)]">
+          评论系统基于 Giscus，配置后自动启用
+        </p>
+        <a href="/about" class="mt-3 inline-block text-[13px] text-[var(--primary)] hover:underline">
+          有想法？先关于页里聊聊 →
+        </a>
+      </div>
+    </div>
+
+    <div class="mx-auto mt-14 max-w-[var(--article-width)]">
+      <a
+        href="/blog"
+        class="mono inline-flex items-center gap-2 text-[12.5px] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+      >
+        ← 返回文章列表
+      </a>
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,87 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '~/styles/global.css';
+import SEO from '~/components/astro/SEO.astro';
+import Navbar from '~/components/astro/Navbar.astro';
+import Footer from '~/components/astro/Footer.astro';
+import { siteConfig } from '~/config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+  /** 隐藏 Footer（一般不用） */
+  bare?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#08090b" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={siteConfig.name}
+      href="/rss.xml"
+    />
+
+    <!-- 必须在渲染前同步执行，避免主题闪烁 -->
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          try {
+            var stored = localStorage.getItem('theme');
+            var theme =
+              stored ||
+              (window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark');
+            document.documentElement.dataset.theme = theme;
+          } catch (e) {
+            document.documentElement.dataset.theme = 'dark';
+          }
+        }
+        applyTheme();
+        // 视图过渡（ClientRouter）会用新页面 <html> 的服务端默认属性
+        // 覆盖 data-theme，导致换页后主题被重置。每次换页完成后重新应用。
+        document.addEventListener('astro:after-swap', applyTheme);
+      })();
+    </script>
+
+    <SEO {...props} />
+    <ClientRouter />
+  </head>
+
+  <body class="min-h-dvh antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-[var(--radius-sm)] focus:bg-[var(--primary)] focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+      >跳到主内容</a
+    >
+
+    <Navbar />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    {!props.bare && <Footer />}
+
+    <!-- 全站共享的一次性脚本：鼠标光斑 / reveal / 代码复制 / 图片灯箱 -->
+    <script>
+      import '~/lib/interactions';
+    </script>
+  </body>
+</html>

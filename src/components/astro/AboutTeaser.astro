@@ -1,0 +1,74 @@
+---
+import { siteConfig } from '~/config/site';
+import { getActiveSocials } from '~/config/social';
+
+const socials = getActiveSocials();
+---
+
+<section id="about" class="container-page pt-24 sm:pt-32" aria-label="关于我">
+  <div class="grid items-center gap-10 lg:grid-cols-[auto_1fr_auto] lg:gap-16">
+    <!-- 头像：SVG 生成，不用照片 -->
+    <div
+      class="relative mx-auto h-28 w-28 shrink-0 lg:mx-0 lg:h-36 lg:w-36"
+      data-reveal
+    >
+      <div
+        class="absolute inset-0 rounded-full border border-[var(--border-strong)]"
+        style="background: radial-gradient(circle at 32% 28%, var(--primary-soft), transparent 68%), var(--surface);"
+      >
+      </div>
+      <svg
+        class="absolute inset-0 h-full w-full p-7 text-[var(--muted)]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.2"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="8.6" r="3.6"></circle>
+        <path d="M4.8 19.4c.9-3.2 3.8-5.2 7.2-5.2s6.3 2 7.2 5.2"></path>
+      </svg>
+      <span
+        class="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)]"
+        aria-hidden="true"
+      >
+        <span class="h-2 w-2 rounded-full bg-[var(--cyan)] pulse-dot"></span>
+      </span>
+    </div>
+
+    <div data-reveal>
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">07</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">About</span>
+      </div>
+
+      <h2 class="text-balance text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[var(--foreground-strong)] sm:text-[32px]">
+        关于 {siteConfig.author}
+      </h2>
+
+      <p class="mt-4 max-w-[58ch] text-[15px] leading-[1.85] text-[var(--muted)]">
+        前端方向的开发者，长期关注 Web、AI
+        工程化与三维可视化。相信"写得清楚"和"做得出来"同样重要，这个站点就是这种信念的产物：
+        内容以纯文件存在，页面为零 JS 渲染，动效只在值得的地方出现。
+      </p>
+
+      <div class="mono mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11.5px] text-[var(--faint)]">
+        <span>📍 {siteConfig.location}</span>
+        <span>🕑 更新频率 · 不定期但持续</span>
+        <span>☕ 燃料 · 咖啡与好奇心</span>
+      </div>
+    </div>
+
+    <a
+      href="/about"
+      class="btn btn-ghost shrink-0 justify-self-center lg:justify-self-end"
+      data-reveal
+    >
+      了解更多
+      <svg class="btn-arrow h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6"></path>
+      </svg>
+    </a>
+  </div>
+</section>

@@ -1,0 +1,89 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import ProjectCard from '~/components/astro/ProjectCard.astro';
+import { getProjects } from '~/lib/content';
+import { projectCategories } from '~/config/categories';
+
+const allProjects = await getProjects();
+
+const activeCategory = Astro.url.searchParams.get('category') ?? 'all';
+const projects =
+  activeCategory === 'all'
+    ? allProjects
+    : allProjects.filter((p) => {
+        if (activeCategory === '3d') return p.data.category === '3d';
+        return p.data.category === activeCategory;
+      });
+
+const chips = projectCategories.map((c) => ({
+  key: c.key,
+  label: c.label,
+  count:
+    c.key === 'all'
+      ? allProjects.length
+      : allProjects.filter((p) => p.data.category === c.key).length,
+}));
+---
+
+<BaseLayout
+  title={`项目 — darmk 个人空间`}
+  description="记录做过的一些项目、实验和技术实践。"
+>
+  <div class="container-page pb-8 pt-[calc(var(--nav-height)+56px)]">
+    <header class="max-w-[52ch]">
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">PROJECTS</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">
+          {allProjects.length} projects
+        </span>
+      </div>
+      <h1 class="text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        项目
+      </h1>
+      <p class="mt-4 text-[15px] leading-relaxed text-[var(--muted)]">
+        记录做过的一些项目、实验和技术实践。
+      </p>
+    </header>
+
+    <nav class="mt-10 flex flex-wrap gap-2" aria-label="项目分类">
+      {
+        chips.map((chip) => {
+          const active = chip.key === activeCategory;
+          return (
+            <a
+              href={chip.key === 'all' ? '/projects' : `/projects?category=${chip.key}`}
+              aria-current={active ? 'page' : undefined}
+              class:list={[
+                'mono rounded-[var(--radius-xs)] border px-3 py-1.5 text-[12px] transition-colors duration-200',
+                active
+                  ? 'border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary)]'
+                  : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]',
+              ]}
+            >
+              {chip.label}
+              <span class="ml-1.5 opacity-60">{chip.count}</span>
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    {
+      projects.length === 0 ? (
+        <div class="mt-20 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] py-20 text-center">
+          <p class="mono text-[12px] text-[var(--faint)]">这个分类还没有项目</p>
+          <a href="/projects" class="mt-4 inline-block text-[13.5px] text-[var(--primary)] hover:underline">
+            查看全部项目 →
+          </a>
+        </div>
+      ) : (
+        <div class="mt-10 grid gap-4 lg:grid-cols-2">
+          {projects.map((project) => (
+            <ProjectCard project={project} layout="row" />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

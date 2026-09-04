@@ -1,0 +1,143 @@
+---
+import { siteConfig, giscusConfig } from '~/config/site';
+import { navigation, secondaryNavigation } from '~/config/navigation';
+import { categories } from '~/config/categories';
+import { getActiveSocials } from '~/config/social';
+import { wechatConfig } from '~/config/wechat';
+
+const socials = getActiveSocials();
+const year = new Date().getFullYear();
+---
+
+<footer class="relative mt-24 border-t border-[var(--border)] bg-[var(--background-soft)]">
+  <div class="container-page py-16">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <!-- brand -------------------------------------------------------- -->
+      <div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-[16px] font-semibold text-[var(--foreground-strong)]"
+            >darmk</span
+          >
+          <span class="mono text-[11px] text-[var(--faint)]">/ 个人空间</span>
+        </div>
+        <p
+          class="mt-3 max-w-[34ch] text-[13.5px] leading-relaxed text-[var(--muted)]"
+        >
+          {siteConfig.description}
+        </p>
+
+        <p class="mono mt-6 text-[11px] text-[var(--faint)]">
+          Code · Build · Share
+        </p>
+      </div>
+
+      <!-- navigation ---------------------------------------------------- -->
+      <div>
+        <p class="eyebrow">导航</p>
+        <ul class="mt-4 space-y-2.5">
+          {
+            navigation.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- categories ---------------------------------------------------- -->
+      <div>
+        <p class="eyebrow">分类</p>
+        <ul class="mt-4 space-y-2.5">
+          {
+            categories.slice(0, 4).map((item) => (
+              <li>
+                <a
+                  href={`/blog?category=${item.key}`}
+                  class="text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a
+              href="/tags"
+              class="text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+            >
+              全部标签
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- links --------------------------------------------------------- -->
+      <div>
+        <p class="eyebrow">更多</p>
+        <ul class="mt-4 space-y-2.5">
+          {
+            secondaryNavigation.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+          {
+            wechatConfig.enabled && (
+              <li>
+                <span class="text-[13.5px] text-[var(--muted)]">
+                  公众号 · {wechatConfig.name}
+                </span>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- bottom bar -------------------------------------------------------- -->
+    <div
+      class="mt-14 flex flex-col gap-4 border-t border-[var(--border-faint)] pt-6 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p class="mono text-[11px] text-[var(--faint)]">
+        © {siteConfig.since}–{year} {siteConfig.author}
+        {siteConfig.icp && (
+          <span class="ml-3 opacity-70">{siteConfig.icp}</span>
+        )}
+      </p>
+
+      <div class="flex items-center gap-5">
+        {
+          socials.map((social) => (
+            <a
+              href={social.icon === 'mail' ? `mailto:${social.value}` : social.href}
+              target={social.href.startsWith('http') ? '_blank' : undefined}
+              rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              class="text-[12px] text-[var(--faint)] transition-colors duration-200 hover:text-[var(--foreground)]"
+            >
+              {social.label}
+            </a>
+          ))
+        }
+        <span class="mono text-[11px] text-[var(--faint)]">
+          Built with Astro
+        </span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{giscusConfig.enabled && false && (
+  <div data-giscus-placeholder></div>
+)}

@@ -1,0 +1,83 @@
+---
+interface Props {
+  /** 01 / 02 / 03 —— section 序号 */
+  index?: string;
+  title: string;
+  /** 英文小标 */
+  en?: string;
+  description?: string;
+  href?: string;
+  hrefLabel?: string;
+  class?: string;
+}
+
+const {
+  index,
+  title,
+  en,
+  description,
+  href,
+  hrefLabel = '查看全部',
+  class: className = '',
+} = Astro.props;
+---
+
+<header
+  class:list={[
+    'mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between',
+    className,
+  ]}
+>
+  <div class="min-w-0">
+    {
+      index && (
+        <div class="mb-3 flex items-center gap-3">
+          <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">
+            {index}
+          </span>
+          <span class="h-px w-8 bg-[var(--border-strong)]" />
+          {en && (
+            <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">
+              {en}
+            </span>
+          )}
+        </div>
+      )
+    }
+    <h2
+      class="text-balance text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[var(--foreground-strong)] sm:text-[32px]"
+    >
+      {title}
+    </h2>
+    {
+      description && (
+        <p class="mt-2.5 max-w-[52ch] text-[14px] leading-relaxed text-[var(--muted)]">
+          {description}
+        </p>
+      )
+    }
+  </div>
+
+  {
+    href && (
+      <a
+        href={href}
+        class="group inline-flex shrink-0 items-center gap-1.5 text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+      >
+        {hrefLabel}
+        <svg
+          class="h-3.5 w-3.5 transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </a>
+    )
+  }
+</header>

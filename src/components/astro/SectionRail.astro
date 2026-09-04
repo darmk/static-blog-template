@@ -1,0 +1,55 @@
+---
+/**
+ * 桌面右侧 Section 指示器：默认只显示序号，hover 显示中文名，
+ * 滚动时高亮当前 Section。行为在 interactions.ts 的 initSectionIndicator。
+ */
+interface RailItem {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  items: RailItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav
+  class="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 xl:block"
+  aria-label="页面章节"
+  data-section-rail
+>
+  <ul class="space-y-1">
+    {
+      items.map((item, index) => (
+        <li>
+          <a
+            href={`#${item.id}`}
+            data-target={item.id}
+            data-active="false"
+            class="group relative flex items-center justify-end gap-2.5 py-1.5"
+            aria-label={item.label}
+          >
+            <span class="mono rail-label text-[10px] tracking-[0.08em] text-[var(--muted)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              {item.label}
+            </span>
+            <span class="mono text-[11px] tabular-nums text-[var(--faint)] transition-colors duration-300 group-hover:text-[var(--foreground)]">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <span class="rail-bar absolute -left-4 top-1/2 h-px w-0 -translate-y-1/2 bg-[var(--primary)] transition-[width] duration-300 ease-[var(--ease-out)]" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  [data-section-rail] a[data-active='true'] .rail-bar {
+    width: 14px;
+  }
+  [data-section-rail] a[data-active='true'] > span:nth-child(2) {
+    color: var(--primary);
+  }
+</style>

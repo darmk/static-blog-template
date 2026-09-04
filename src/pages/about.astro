@@ -1,0 +1,162 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Terminal from '~/components/astro/Terminal.astro';
+import WechatSection from '~/components/astro/WechatSection.astro';
+import { siteConfig } from '~/config/site';
+import { getActiveSocials } from '~/config/social';
+import { techStack } from '~/config/tech-stack';
+
+const socials = getActiveSocials();
+const now = new Date().getFullYear();
+const years = now - siteConfig.since;
+
+const sections = [
+  {
+    title: '最近在做',
+    en: 'Now',
+    items: [
+      '三维地图可视化的性能与交互打磨',
+      'AI Agent 工程化的落地实践',
+      '这个博客本身 —— 内容系统与阅读体验',
+    ],
+  },
+  {
+    title: '最近在学',
+    en: 'Learning',
+    items: ['WebGPU 与计算着色器', '多智能体协作的编排模式', '编译原理（补课）'],
+  },
+  {
+    title: '关注方向',
+    en: 'Focus',
+    items: ['AI 与工程的交界处', 'Web 图形学', '开发者体验（DX）', '知识管理'],
+  },
+];
+---
+
+<BaseLayout title={`关于 — darmk 个人空间`} description="关于 darmk：在做什么、学什么、关注什么。">
+  <div class="container-narrow pb-10 pt-[calc(var(--nav-height)+56px)]">
+    <header class="max-w-[52ch]">
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">ABOUT</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">
+          {siteConfig.shortName}
+        </span>
+      </div>
+      <h1 class="text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        关于
+      </h1>
+    </header>
+
+    <!-- 简单介绍 -->
+    <div class="mt-12 grid gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
+      <div class="mx-auto lg:mx-0">
+        <div
+          class="relative h-36 w-36 rounded-full border border-[var(--border-strong)]"
+          style="background: radial-gradient(circle at 32% 28%, var(--primary-soft), transparent 68%), var(--surface);"
+        >
+          <svg class="absolute inset-0 h-full w-full p-9 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true">
+            <circle cx="12" cy="8.6" r="3.6"></circle>
+            <path d="M4.8 19.4c.9-3.2 3.8-5.2 7.2-5.2s6.3 2 7.2 5.2"></path>
+          </svg>
+        </div>
+        <p class="mono mt-4 text-center text-[11px] text-[var(--faint)]">
+          {siteConfig.location} · {years} 年+
+        </p>
+      </div>
+
+      <div class="prose max-w-none">
+        <p>
+          你好，我是 <strong>{siteConfig.author}</strong>，一个偏前端方向的开发者。
+        </p>
+        <p>
+          大部分时间在写 Web：从页面、工程化到 3D
+          可视化都碰。最近两年越来越多的精力花在把 AI
+          真正接进产品里 —— 不是 demo，是能稳定跑在生产线上的那种。
+        </p>
+        <p>
+          我相信 <em>写得清楚</em> 和 <em>做得出来</em> 同样重要，所以建了这个地方：把过程中值得留下的东西沉淀成文字。
+          内容以技术为主，偶尔有些不那么技术的思考。
+        </p>
+      </div>
+    </div>
+
+    <!-- Now / Learning / Focus -->
+    <div class="mt-16 grid gap-4 md:grid-cols-3">
+      {
+        sections.map((section) => (
+          <div class="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6">
+            <p class="mono text-[10.5px] tracking-[0.14em] text-[var(--faint)] uppercase">
+              {section.en}
+            </p>
+            <h2 class="mt-1.5 text-[15.5px] font-semibold text-[var(--foreground-strong)]">
+              {section.title}
+            </h2>
+            <ul class="mt-4 space-y-2.5">
+              {section.items.map((item) => (
+                <li class="flex items-start gap-2.5 text-[13.5px] leading-relaxed text-[var(--muted)]">
+                  <span class="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-[var(--primary)] opacity-70" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- 常用技术 -->
+    <section class="mt-16" aria-label="常用技术">
+      <div class="flex items-center gap-4">
+        <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">常用技术</span>
+        <span class="h-px flex-1 bg-[var(--border-faint)]"></span>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {techStack.slice(0, 12).map((tech) => <span class="chip">{tech.name}</span>)}
+      </div>
+    </section>
+
+    <!-- 联系方式 -->
+    <section class="mt-16" aria-label="联系方式">
+      <div class="flex items-center gap-4">
+        <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">找到我</span>
+        <span class="h-px flex-1 bg-[var(--border-faint)]"></span>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        {
+          socials.map((social) => (
+            <a
+              href={social.icon === 'mail' ? `mailto:${social.value}` : social.href}
+              target={social.href.startsWith('http') ? '_blank' : undefined}
+              rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              class="btn btn-ghost"
+            >
+              {social.label}
+            </a>
+          ))
+        }
+        {
+          socials.length === 0 && (
+            <p class="mono text-[12px] text-[var(--faint)]">
+              联系方式待配置（src/config/social.ts）
+            </p>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- Terminal 彩蛋 -->
+    <section class="mt-16" aria-label="终端彩蛋">
+      <div class="mb-4 flex items-center gap-4">
+        <span class="mono text-[12px] font-medium text-[var(--foreground-strong)]">
+          一个小彩蛋
+        </span>
+        <span class="h-px flex-1 bg-[var(--border-faint)]"></span>
+        <span class="mono text-[11px] text-[var(--faint)]">try `help`</span>
+      </div>
+      <Terminal github={siteConfig.github} />
+    </section>
+
+    <WechatSection variant="compact" />
+  </div>
+</BaseLayout>

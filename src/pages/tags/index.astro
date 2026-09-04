@@ -1,0 +1,49 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getAllTags } from '~/lib/content';
+
+const tags = await getAllTags();
+const max = Math.max(...tags.map((t) => t.count), 1);
+---
+
+<BaseLayout title={`标签 — darmk 个人空间`} description="按标签浏览全部内容。">
+  <div class="container-narrow pb-10 pt-[calc(var(--nav-height)+56px)]">
+    <header class="max-w-[52ch]">
+      <div class="mb-3 flex items-center gap-3">
+        <span class="mono text-[11px] tracking-[0.2em] text-[var(--primary)]">TAGS</span>
+        <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+        <span class="mono text-[11px] tracking-[0.16em] text-[var(--faint)] uppercase">
+          {tags.length} tags
+        </span>
+      </div>
+      <h1 class="text-balance text-[36px] font-semibold leading-[1.12] tracking-[-0.025em] text-[var(--foreground-strong)] sm:text-[46px]">
+        标签
+      </h1>
+      <p class="mt-4 text-[15px] leading-relaxed text-[var(--muted)]">
+        覆盖文章与项目的全部标签。
+      </p>
+    </header>
+
+    <div class="mt-14 flex flex-wrap gap-3">
+      {
+        tags.map((item) => {
+          const weight = item.count / max;
+          return (
+            <a
+              href={`/tags/${item.tag}`}
+              class="group flex items-baseline gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] px-4 py-2.5 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
+            >
+              <span
+                class="font-medium text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]"
+                style={`font-size: ${13 + weight * 4}px;`}
+              >
+                {item.tag}
+              </span>
+              <span class="mono text-[10.5px] text-[var(--faint)]">{item.count}</span>
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</BaseLayout>

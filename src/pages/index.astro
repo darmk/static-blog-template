@@ -1,0 +1,102 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Hero from '~/components/astro/Hero.astro';
+import FeaturedArticle from '~/components/astro/FeaturedArticle.astro';
+import SectionHeading from '~/components/astro/SectionHeading.astro';
+import PostRow from '~/components/astro/PostRow.astro';
+import TopicsBento from '~/components/astro/TopicsBento.astro';
+import HomeProjects from '~/components/astro/HomeProjects.astro';
+import WechatSection from '~/components/astro/WechatSection.astro';
+import TechStack from '~/components/astro/TechStack.astro';
+import AboutTeaser from '~/components/astro/AboutTeaser.astro';
+import SectionRail from '~/components/astro/SectionRail.astro';
+import { getPosts, getFeaturedPosts, getProjects, getNotes, readingTime } from '~/lib/content';
+import { homeConfig } from '~/config/home';
+import { siteConfig } from '~/config/site';
+
+const [featured, posts, projects, notes] = await Promise.all([
+  getFeaturedPosts(homeConfig.featuredArticles),
+  getPosts(),
+  getProjects(),
+  getNotes(),
+]);
+
+const heroFeature = featured[0] ?? posts[0];
+const latest = posts
+  .filter((p) => p.id !== heroFeature?.id)
+  .slice(0, homeConfig.latestArticles);
+---
+
+<BaseLayout
+  title={siteConfig.name}
+  description={siteConfig.description}
+>
+  <SectionRail
+    items={[
+      { id: 'hero', label: '首页' },
+      { id: 'featured', label: '推荐文章' },
+      { id: 'latest', label: '最近更新' },
+      { id: 'topics', label: '按主题浏览' },
+      { id: 'projects', label: '我的项目' },
+      { id: 'wechat', label: '公众号' },
+      { id: 'stack', label: '技术栈' },
+      { id: 'about', label: '关于我' },
+    ]}
+  />
+
+  <Hero />
+
+  {heroFeature && <FeaturedArticle post={heroFeature} postCount={posts.length} projectCount={projects.length} noteCount={notes.length} />}
+
+  <!-- 02 最近更新 —— Editorial List -->
+  <section id="latest" class="container-page pt-24 sm:pt-32" aria-label="最近更新">
+    <SectionHeading
+      index="02"
+      title="最近更新"
+      en="Latest"
+      description="最新的写作动态，从最新的开始读。"
+      href="/blog"
+      hrefLabel="查看全部"
+    />
+
+    <div class="post-list border-t border-[var(--border-faint)]">
+      {
+        latest.map((post, index) => (
+          <PostRow
+            post={post}
+            index={index}
+            showReadingTime
+            readingMinutes={readingTime(post.body)}
+          />
+        ))
+      }
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <a
+        href="/blog"
+        class="group inline-flex items-center gap-1.5 text-[13.5px] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
+      >
+        全部文章
+        <span class="mono text-[11px] text-[var(--faint)]">{posts.length} 篇</span>
+        <svg
+          class="h-3.5 w-3.5 transition-transform duration-300 ease-[var(--ease-out)] group-hover:translate-x-1"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  {homeConfig.showTopics && <TopicsBento />}
+
+  <HomeProjects />
+
+  {homeConfig.showWechat && <WechatSection />}
+
+  {homeConfig.showTechStack && <TechStack />}
+
+  {homeConfig.showAbout && <AboutTeaser />}
+</BaseLayout>

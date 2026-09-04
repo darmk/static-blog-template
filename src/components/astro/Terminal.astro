@@ -1,0 +1,144 @@
+---
+/**
+ * Terminal 彩蛋 —— 纯 vanilla，无依赖。
+ * 支持 help / about / blog / projects / github / clear，上下键历史。
+ */
+interface Props {
+  github?: string;
+}
+
+const { github = '' } = Astro.props;
+---
+
+<div
+  class="terminal overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[#0a0d11]"
+  data-terminal
+  data-github={github}
+>
+  <div class="flex items-center gap-2.5 border-b border-[var(--border)] px-4 py-2.5">
+    <span class="code-dots flex gap-1.5" style="display:flex;gap:5px;">
+      <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,99,89,.5);display:block"></i>
+      <i style="width:8px;height:8px;border-radius:50%;background:rgba(255,189,46,.5);display:block"></i>
+      <i style="width:8px;height:8px;border-radius:50%;background:rgba(39,201,63,.5);display:block"></i>
+    </span>
+    <span class="mono text-[11.5px] text-[var(--muted)]">visitor@darmk: ~</span>
+  </div>
+
+  <div
+    class="mono terminal-output max-h-[300px] min-h-[180px] overflow-y-auto p-4 text-[12.5px] leading-[1.9]"
+    role="log"
+    aria-live="polite"
+    aria-label="终端输出"
+  >
+    <p class="text-[var(--muted)]">欢迎来到 darmk 的终端。输入 <span class="text-[var(--cyan)]">help</span> 查看可用命令。</p>
+  </div>
+
+  <div class="flex items-center gap-2 border-t border-[var(--border)] px-4 py-3">
+    <span class="mono shrink-0 text-[12.5px] text-[var(--primary)]">$</span>
+    <input
+      type="text"
+      class="mono terminal-input w-full bg-transparent text-[12.5px] text-[var(--foreground)] outline-none"
+      placeholder="输入命令…"
+      aria-label="终端命令输入"
+      autocomplete="off"
+      spellcheck="false"
+    />
+  </div>
+</div>
+
+<script>
+  function initTerminal() {
+    const root = document.querySelector<HTMLElement>('[data-terminal]');
+    if (!root || root.dataset.bound === 'true') return;
+    root.dataset.bound = 'true';
+
+    const output = root.querySelector<HTMLElement>('.terminal-output')!;
+    const input = root.querySelector<HTMLInputElement>('.terminal-input')!;
+    const github = root.dataset.github ?? '';
+
+    const print = (html: string, className = '') => {
+      const p = document.createElement('p');
+      if (className) p.className = className;
+      p.innerHTML = html;
+      output.appendChild(p);
+      output.scrollTop = output.scrollHeight;
+    };
+
+    const commands: Record<string, () => void> = {
+      help: () =>
+        print(
+          [
+            '<span class="text-[var(--cyan)]">about</span>    关于 darmk',
+            '<span class="text-[var(--cyan)]">blog</span>     前往文章列表',
+            '<span class="text-[var(--cyan)]">projects</span> 前往项目列表',
+            '<span class="text-[var(--cyan)]">github</span>   打开 GitHub',
+            '<span class="text-[var(--cyan)]">clear</span>    清空终端',
+          ].join('<br>')
+        ),
+      about: () =>
+        print(
+          '前端开发者 · 关注 Web / AI / Three.js / 工程化<br>这个站点用 Astro 构建，静态优先，零 JS 渲染。'
+        ),
+      blog: () => {
+        print('正在跳转到 <span class="text-[var(--cyan)]">/blog</span> …');
+        window.setTimeout(() => (window.location.href = '/blog'), 400);
+      },
+      projects: () => {
+        print('正在跳转到 <span class="text-[var(--cyan)]">/projects</span> …');
+        window.setTimeout(() => (window.location.href = '/projects'), 400);
+      },
+      github: () => {
+        if (github) {
+          print(`打开 <span class="text-[var(--cyan)]">${github}</span> …`);
+          window.open(github, '_blank', 'noopener');
+        } else {
+          print('GitHub 链接尚未配置（src/config/site.ts → siteConfig.github）');
+        }
+      },
+      clear: () => {
+        output.innerHTML = '';
+      },
+    };
+
+    const history: string[] = [];
+    let historyIndex = -1;
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        const raw = input.value.trim();
+        input.value = '';
+        if (!raw) return;
+
+        history.unshift(raw);
+        historyIndex = -1;
+        print(`<span class="text-[var(--primary)]">$</span> ${raw.replace(/</g, '&lt;')}`);
+
+        const cmd = raw.toLowerCase();
+        if (commands[cmd]) commands[cmd]();
+        else print(`command not found: ${cmd.replace(/</g, '&lt;')}，试试 help`, 'text-[var(--faint)]');
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          input.value = history[historyIndex];
+        }
+        return;
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (historyIndex > 0) {
+          historyIndex--;
+          input.value = history[historyIndex];
+        } else {
+          historyIndex = -1;
+          input.value = '';
+        }
+      }
+    });
+  }
+
+  initTerminal();
+  document.addEventListener('astro:after-swap', initTerminal);
+</script>
